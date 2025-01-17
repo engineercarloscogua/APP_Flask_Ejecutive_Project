@@ -1,1 +1,1 @@
-pip list > requirements.txt   actualiza mi listado de librerias
+pip list > requirements.txt   actualiza mi listado de librerías
