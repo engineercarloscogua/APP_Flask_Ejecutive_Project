@@ -100,5 +100,7 @@ def redirect_to(code):
     return "Código no encontrado"  # Si el código no se encuentra, muestra un mensaje de error
 
 # ========================== Ejecución de la aplicación ===========================
-if __name__ == "__main__":
-    app.run(debug=True, port=5000)  # Ejecuta la aplicación en modo de depuración en el puerto 5000
+
+
+if __name__ == '__main__':
+    app.run(debug=True)

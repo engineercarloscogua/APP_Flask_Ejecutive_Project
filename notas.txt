@@ -1,1 +1,8 @@
 pip list > requirements.txt   actualiza mi listado de librerías
+
+Base de datos 
+
+Creación: ejecutar database.py 
+CReación de datablas: asegurarse de tener instalado SQalchemy y ejecutar en consola el siguiente codigo
+
+Creación de las tablas:  se ejecuta el archivo ini_db.py
