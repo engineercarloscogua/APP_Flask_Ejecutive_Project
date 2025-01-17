@@ -1,0 +1,17 @@
+<!--Estilo de la alerta-->
+<style> 
+.alert-success{
+    color:green;
+}    
+</style>
+
+<h1>ruta dinamica</h1>
+
+{{nombre}} <!-- TRAE EL NOMBRE EN EL OFRMULARIO DESDE UAPP-->
+
+<!-- Alerta de flash usando sintaxis JINJA -->
+{% with messages = get_flashed_messages(with_categories = true) %} <!-- ANALIZA LA CATEGORIA EN EL CONTROLADOR success-->
+    {% for category, message in messages %} <!--ITERA LA CATEGORIA-->
+        <h3 class ="alert-{{category}}"> {{message}} </h3> <!--USA EL ESTILO PARA PINTAR EL MENSAJE-->
+    {% endfor %}
+{% endwith %}

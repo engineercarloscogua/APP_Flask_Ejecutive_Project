@@ -1,0 +1,27 @@
+<!--==========First form====Cargue de archivos====================-->
+<!-- In this moment we are using the get metodh for default-->
+<form action ="dinamic" method= "POST"> <!-- pass another rute template and use the POST method-->
+    <label for = "url"> Escribe una URl</label>
+    <input type = "url" name = "url" valur = " ">
+    <label for = "code"> Escribe tu nombre</label> <!-- code es lo que es validado en el if de la función form-->
+    <input type = "text" name = "code" value = "">
+    <input type = "submit" value = "Enviar">
+</form>
+
+<!--Muestra los mensajes de flash   SIntaxis de JINJA-->
+{% with messages = get_flashed_messages() %}
+    {% for message in messages %}
+        {{message}}
+    {% endfor %}
+{% endwith %}
+
+
+<!-- =============SECOND FORM ==========================-->
+<!-- ================ upload files/ cargar archivos===============-->
+<form action ="dinamic" method= "POST" enctype = "multipart/form-data"> <!-- pass another rute template and use the POST method- / enctype = "multipart/form-data" permite hacer el cargue -->
+    <label for = "file"> Carga tu archivo</label>
+    <input type = "file" name = "file" valur = " ">
+    <label for = "code"> Escribe tu nombre</label>
+    <input type = "text" name = "code" value = "">
+    <input type = "submit" value = "Enviar">
+</form>

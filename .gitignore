@@ -3,9 +3,13 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# ignora los contenido de uploads
+/static/uploads/*
+/database/*
+
 # C extensions
 *.so
-
+urls.json
 # Distribution / packaging
 .Python
 build/
