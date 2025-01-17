@@ -5,4 +5,43 @@ Base de datos
 Creación: ejecutar database.py 
 CReación de datablas: asegurarse de tener instalado SQalchemy y ejecutar en consola el siguiente codigo
 
+sqlite3 database\base.db
+consultar tablas 
+.table
+
 Creación de las tablas:  se ejecuta el archivo ini_db.py
+
+
+Creación de un usuario :
+
+en consola de python ejecutar respetando identación 
+
+from app import app, db
+from database import User
+with app.app_context():
+        admin = User(username="admin", email = "carloscogua@live.com", password = "Lumethik25")
+...     db.session.add(admin) # agrega el objeto usuario
+...     db.session.commit()   # almacena los cambios
+... 
+users = User.query.all()
+
+
+como ver los ususarios creados ? 
+en consola de python ejecutar: recuerda que siempre pythoin pide un contexto para ejecutar por eso se usa with
+
+>>> from app import app, db
+>>> from database import User
+>>> with app.app_context():
+...     usuarios = User.query.all()
+...     print(usuarios)
+...
+Resultado 
+[(1, 'admin', 'carloscogua@live.com')]
+
+
+consultar multiples usuarios 
+
+with app.app_context():
+    usuarios = User.query.all()
+    for usuario in usuarios:
+        print(f'ID: {usuario.id}, Usuario: {usuario.username}, Email: {usuario.email}')

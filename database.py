@@ -12,6 +12,6 @@ class User(db.Model): #? La clase 'User' hereda de 'db.Model', lo que indica que
     email = db.Column(db.String(80), unique=True, nullable=False)  # 'email' es una columna única y no nula.
     password = db.Column(db.String(80))  # 'password' es una columna de tipo cadena. Puede ser nula.
 
-    # Método especial que permite mostrar los registros de una manera más legible.
+    # Método especial que permite mostrar los registros de una manera más legible en la consola de Python, ver notas.txt.
     def __repr__(self):  #? __repr__ es un método especial que define cómo se mostrará el objeto cuando se imprima o se convierta en cadena.
-        return f'{self.id, self.username, self.email}'  # Devuelve una representación del objeto mostrando id, username y email.
+        return f'{self.id, self.username, self.email}'  # Devuelve una representación del objeto mostrando id, username y email en consola python.

@@ -49,12 +49,12 @@ def login():
         return '<h1> Nuevo Usuario Registrado</h1>'  # Muestra mensaje de éxito
     return render_template('register.html', regis=registro)  # Renderiza el formulario de registro en 'register.html'
 
-# Ruta para el formulario de ejemplo
+# Ruta para el formulario de ejemplo carga texto en json y nombre de archivos de imagen
 @app.route("/form")
 def form():
     return render_template('form.html')  # Renderiza la plantilla 'form.html'
 
-# Ruta dinámica para manejar peticiones GET y POST
+# Ruta dinámica para manejar peticiones GET y POST re dirige a dinamic y muestra los datos cargados
 @app.route("/dinamic", methods = ['GET', 'POST'])
 def dinamic():
     if request.method == 'POST':  # Si se realiza una petición POST (envío de formulario)
