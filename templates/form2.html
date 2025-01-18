@@ -1,34 +1,39 @@
-<!--LOGIN-->
-<!--Estructura WT FORM de formulario creado por medio de una clase en form.py-->
-{%block contenido %}
-<h1>Home iniciar sesion </h1>
-<form action = "" method= "POST" novalidate>  <!-- formi es la var de la funcion homec donde se llama a login-->
-    {{ formi.hidden_tag() }} <!-- es un campo oculto para protejer contra ataques Cross-Site Request Forgery, manejo de seciones-->
-
-    <!--Nombre de usuario-->
-    {{formi.username.label}} <br>
-    {{formi.username(size=30)}} <br>
-<!--Validador de error en el campo durante la ejecucín del proyecto-->
-    {%  for error in formi.username.errors %}
-    <span style = " color: red;">{{error}}</span> <br>
-    {% endfor %}
-
-    <!-- Clave -->
-    {{formi.password.label}} <br>
-    {{formi.password(size=30)}} <br>
-<!--Validador de error en el campo durante la ejecucín del proyecto-->
-    {%  for error in formi.password.errors %}
-    <span style = " color: red;">{{error}}</span> <br>
-    {% endfor %}
-
-    <!-- Boton de recuerdame-->
-    {{formi.remember.label}} <br>
-    {{formi.remember(size=30)}} <br>
-<!--Validador de error en el campo durante la ejecucín del proyecto-->
-    {%  for error in formi.remember.errors %}
-    <span style = " color: red;">{{error}}</span> <br>
-    {% endfor %}
+<!-- templates/form2.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <!-- Bloque para mostrar mensajes flash (notificaciones) -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
     
-    <button type="submit">Loguearse </button>
-</form>
-{% endblock %}
+    <!-- Formulario de login -->
+    <form method="POST">
+        <!-- Token CSRF para protección contra ataques -->
+        {{ formi.csrf_token }}
+        <!-- Campo de usuario -->
+        <div>
+            {{ formi.username.label }}
+            {{ formi.username }}
+        </div>
+        <!-- Campo de contraseña -->
+        <div>
+            {{ formi.password.label }}
+            {{ formi.password }}
+        </div>
+        <!-- Botón de envío -->
+        {{ formi.submit }}
+    </form>
+    <!-- Enlace a la página de registro -->
+    <a href="{{ url_for('registro') }}">Register</a>
+</body>
+</html>
+

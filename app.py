@@ -1,106 +1,123 @@
-# Controlador
-from flask import ( # Importación de las funcionalidades principales de Flask
-    Flask,  # Flask es el framework principal para crear la aplicación web
-    render_template,  # Funcionalidad de Flask para renderizar plantillas HTML
-    request,  # Permite extraer datos de los formularios enviados (GET/POST)
-    redirect,  # Redirige al usuario a otra ruta
-    url_for,  # Genera URLs de rutas en la aplicación
-    flash  # Permite mostrar mensajes emergentes de tipo alerta
-)
+# ====================== Importaciones necesarias ======================
+from flask import Flask, render_template, request, redirect, url_for, flash
+from flask_sqlalchemy import SQLAlchemy  # ORM para la base de datos
+from werkzeug.utils import secure_filename  # Para manejo seguro de archivos
+import json  # Para manejo de datos JSON
+import os.path  # Para operaciones con rutas de archivos
 
-from flask_sqlalchemy import SQLAlchemy  # Importa la funcionalidad de SQLAlchemy para manejar bases de datos
-import json  # El módulo json se utiliza para trabajar con datos en formato JSON
-import os.path  # El módulo os permite interactuar con el sistema de archivos
-from werkzeug.utils import secure_filename  # Función que asegura que el nombre del archivo es seguro
+# ====================== Configuración de la aplicación ======================
+# Crear instancia de Flask
+app = Flask(__name__)
 
-# Importación de los formularios de la carpeta forms
-from forms import Loginform, CreateUserForm  # Importando los formularios definidos en form.py
+# Configuración de la base de datos y seguridad
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{os.path.join(basedir, 'database', 'base.db')}"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Desactivar seguimiento de modificaciones
+app.config['SECRET_KEY'] = '2025'  # Clave secreta para sesiones y CSRF
 
-# ========================== Creación de la aplicación ============================
-app = Flask(__name__)  # Crea una instancia de la aplicación Flask
+# Inicializar SQLAlchemy
+db = SQLAlchemy(app)
 
-# ========================== Configuración de la base de datos ===================
-basedir = os.path.abspath(os.path.dirname(__file__))  # Obtiene la ruta absoluta del directorio actual
-app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{os.path.join(basedir, 'database', 'base.db')}"  # Configura la URI de la base de datos
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Desactiva la notificación de modificaciones en la base de datos
-app.secret_key = '2025'  # Clave secreta para usar sesiones y mensajes emergentes (flash)
-db = SQLAlchemy(app)  # Crea una instancia de SQLAlchemy para manejar la base de datos
+# ====================== Modelo de Usuario ======================
+class User(db.Model):
+    """
+    Modelo de base de datos para la tabla de usuarios.
+    Define la estructura y restricciones de los datos de usuario.
+    """
+    # Columnas de la tabla
+    id = db.Column(db.Integer, primary_key=True)  # Identificador único
+    username = db.Column(db.String(80), unique=True, nullable=False)  # Nombre de usuario único
+    email = db.Column(db.String(80), unique=True, nullable=False)  # Email único
+    password = db.Column(db.String(80))  # Contraseña (en producción debería estar hasheada)
 
-# ========================== Rutas ==========================
+    def __repr__(self):
+        """Método para representación string del objeto"""
+        return f'{self.id, self.username, self.email}'
 
-# Ruta principal, disponible tanto para GET como para POST
-@app.route("/home", methods = ['GET', 'POST'])  
-@app.route("/", methods = ['GET', 'POST'])  # Esta ruta también es la raíz de la aplicación
+# ====================== Formularios ======================
+from flask_wtf import FlaskForm  # Base para formularios seguros
+from wtforms import StringField, PasswordField, SubmitField  # Campos de formulario
+from wtforms.validators import DataRequired, Email  # Validadores
 
+class LoginForm(FlaskForm):
+    """
+    Formulario para el inicio de sesión.
+    Incluye campos para nombre de usuario y contraseña.
+    """
+    username = StringField('Username', validators=[DataRequired()])  # Campo obligatorio
+    password = PasswordField('Password', validators=[DataRequired()])  # Campo obligatorio
+    submit = SubmitField('Login')  # Botón de envío
+
+class CreateUserForm(FlaskForm):
+    """
+    Formulario para el registro de nuevos usuarios.
+    Incluye validación de email y campos obligatorios.
+    """
+    username = StringField('Username', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])  # Validación de formato de email
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Register')
+
+# ====================== Rutas ======================
+
+@app.route("/home", methods=['GET', 'POST'])
+@app.route("/", methods=['GET', 'POST'])
 def home():
-    login = Loginform()  # Crea el formulario de login
-    if login.validate_on_submit():  # Si el formulario se envía y es válido
-        return '<h1>' + login.username.data + '  ' + login.password.data + '</h1>'  # Muestra los datos enviados como ejemplo
-    return render_template('form2.html', formi= login)  # Renderiza la plantilla 'form2.html' pasando el formulario 'login'
+    """
+    Ruta principal y de login.
+    Maneja tanto la visualización del formulario como el proceso de login.
+    """
+    login = LoginForm()
+    if login.validate_on_submit():  # Si el formulario es válido y fue enviado
+        # Aquí deberías agregar la lógica de verificación de credenciales
+        return '<h1>' + login.username.data + '  ' + login.password.data + '</h1>'
+    return render_template('form2.html', formi=login)
 
-# Ruta para registrar un nuevo usuario
-@app.route("/registro", methods = ['GET', 'POST'])
-def login():
-    registro = CreateUserForm()  # Crea el formulario de registro de usuario
-    if registro.validate_on_submit():  # Si el formulario se envía y es válido
-        new_user = User(username=registro.username.data, email=registro.email.data, password=registro.password.data)  # Crea un nuevo objeto usuario
-        db.session.add(new_user)  # Agrega el nuevo usuario a la sesión de la base de datos
-        db.session.commit()  # Confirma la transacción en la base de datos
-        return '<h1> Nuevo Usuario Registrado</h1>'  # Muestra mensaje de éxito
-    return render_template('register.html', regis=registro)  # Renderiza el formulario de registro en 'register.html'
-
-# Ruta para el formulario de ejemplo carga texto en json y nombre de archivos de imagen
-@app.route("/form")
-def form():
-    return render_template('form.html')  # Renderiza la plantilla 'form.html'
-
-# Ruta dinámica para manejar peticiones GET y POST re dirige a dinamic y muestra los datos cargados
-@app.route("/dinamic", methods = ['GET', 'POST'])
-def dinamic():
-    if request.method == 'POST':  # Si se realiza una petición POST (envío de formulario)
-        urls = {}  # Diccionario para almacenar las URLs ingresadas
-        if os.path.exists('urls.json'):  # Si el archivo 'urls.json' existe
-            try:
-                with open('urls.json') as url_file:  # Abre el archivo 'urls.json'
-                    urls = json.load(url_file)  # Carga el contenido del archivo JSON en el diccionario 'urls'
-            except json.JSONDecodeError:  # Si hay un error de formato en el JSON
-                urls = {}  # Reinicia el diccionario a vacío
-        else:
-            urls = {}  # Si el archivo no existe, inicia un diccionario vacío
-
-        # Si el 'code' enviado en el formulario ya está en el diccionario
-        if request.form['code'] in urls.keys():
-            flash('Esa clave o nombre ya está ocupada')  # Muestra un mensaje de alerta
-            return redirect(url_for('form'))  # Redirige al formulario
-        # Si se proporciona una URL en el formulario
-        if 'url' in request.form.keys():
-            urls[request.form['code']] = request.form['url']  # Guarda la URL en el diccionario
-        else:
-            f = request.files['file']  # Si se sube un archivo
-            full_name = request.form['code'] + secure_filename(f.filename)  # Asegura un nombre único para el archivo
-            f.save('static/uploads/' + full_name)  # Guarda el archivo en la carpeta 'static/uploads'
-            urls[request.form['code']] = {'file': full_name}  # Guarda la información del archivo en el diccionario
+@app.route("/registro", methods=['GET', 'POST'])
+def registro():
+    """
+    Ruta para el registro de nuevos usuarios.
+    Incluye validaciones y manejo de errores.
+    """
+    registro_form = CreateUserForm()
+    if registro_form.validate_on_submit():
+        # Verificar si el usuario ya existe
+        existing_user = User.query.filter_by(username=registro_form.username.data).first()
+        if existing_user:
+            flash('El nombre de usuario ya existe')
+            return redirect(url_for('registro'))
         
-        # Guarda el diccionario actualizado en el archivo 'urls.json'
-        with open('urls.json', 'w') as url_file:
-            json.dump(urls, url_file)
-            flash("Se ha creado el registro correctamente", "success")  # Muestra mensaje de éxito
-        return render_template('dinamic.html', nombre=request.form['code'])  # Muestra la plantilla 'dinamic.html' pasando el código como parámetro
-    else:
-        return redirect(url_for('form'))  # Si no es un POST, redirige al formulario
+        # Verificar si el email ya existe
+        existing_email = User.query.filter_by(email=registro_form.email.data).first()
+        if existing_email:
+            flash('El email ya está registrado')
+            return redirect(url_for('registro'))
+        
+        # Crear nuevo usuario con los datos del formulario
+        new_user = User(
+            username=registro_form.username.data,
+            email=registro_form.email.data,
+            password=registro_form.password.data  # NOTA: En producción, usar hash para la contraseña
+        )
+        
+        # Intentar guardar el nuevo usuario en la base de datos
+        try:
+            db.session.add(new_user)  # Agregar a la sesión de la base de datos
+            db.session.commit()  # Confirmar los cambios
+            flash('Usuario registrado exitosamente')
+            return redirect(url_for('home'))
+        except Exception as e:
+            db.session.rollback()  # Revertir cambios en caso de error
+            flash('Error al registrar usuario')
+            return redirect(url_for('registro'))
+            
+    return render_template('register.html', regis=registro_form)
 
-# Ruta para redirigir a imágenes o archivos
-@app.route('/<string:code>')
-def redirect_to(code):
-    if os.path.exists('urls.json'):  # Si el archivo 'urls.json' existe
-        with open('urls.json') as url_file:
-            urls = json.load(url_file)  # Carga las URLs del archivo
-            if code in urls.keys():  # Si el código existe en las URLs
-                return redirect(url_for('static', filename='uploads/' + urls[code]['file']))  # Redirige a la URL asociada
-    return "Código no encontrado"  # Si el código no se encuentra, muestra un mensaje de error
+# ====================== Inicialización de la Base de Datos ======================
+# Crear todas las tablas definidas en los modelos
+with app.app_context():
+    db.create_all()
 
-# ========================== Ejecución de la aplicación ===========================
-
-
+# ====================== Ejecución de la Aplicación ======================
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True)  # Modo debug para desarrollo

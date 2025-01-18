@@ -1,5 +1,9 @@
 # Crea un modelo de base de datos utilizando SQLAlchemy
-from app import db  # Importa el objeto db, que es utilizado para interactuar con la base de datos.
+from app import app  # Importa el objeto db, que es utilizado para interactuar con la base de datos.
+from flask_sqlalchemy import SQLAlchemy  # Importa la funcionalidad de SQLAlchemy para manejar bases de datos
+
+db = SQLAlchemy(app)  # Crea una instancia de SQLAlchemy para manejar la base de datos
+db.init_app(app) # Crea una instancia de SQLAlchemy
 
 # La siguiente línea está comentada porque no se está utilizando en el código actual, pero es una importación necesaria si deseas usar SQLAlchemy directamente.
 # from flask_sqlalchemy import SQLAlchemy  #? Importa SQLAlchemy para trabajar con bases de datos en Flask.

@@ -1,31 +1,43 @@
-<!--Estructura de formulario creado por medio de una clase-->
-{%block contenido %}
-<h1>Formulario de registro </h1>
-<form action = "" method= "POST" novalidate>
-    {{regis.hidden_tag() }} <!-- es un campo oculto para protejer contra ataques Cross-Site Request Forgery, manejo de seciones-->
+<!-- templates/register.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+</head>
+<body>
+    <h1>Register</h1>
+    <!-- Bloque para mostrar mensajes flash (notificaciones) -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
     
-    {{regis.email.label}} <br> <!--Etiquetas-->
-    {{regis.email(size=30)}} <br> <!-- se supone que muestra la clave y la contraseña pero por algun motivo no lo hace-->
-   <!--Validador de error en el campo durante la ejecucín del proyecto-->
-    {%  for error in regis.email.errors %}
-    <span style = " color: blue;">{{error}}</span> <br>
-    {% endfor %}
-    
-    {{regis.username.label}} <br> <!-- etiquetas label que traen el nombre de los campos personalizados desde el controlador de formulario-->
-    {{regis.username(size=30)}} <br>
-    <!--Validador de error en el campo durante la ejecucín del proyecto-->
-    {%  for error in regis.username.errors %}
-    <span style = " color: blue;">{{error}}</span> <br>
-    {% endfor %}
-
-    {{regis.password.label}} <br> <!--Etiquetas-->
-    {{regis.password(size=30)}} <br> 
-   <!--Validador de error en el campo durante la ejecucín del proyecto-->
-    {%  for error in regis.password.errors %}
-    <span style = " color: blue;">{{error}}</span> <br>
-    {% endfor %}
-    
-    <button type="submit">Enviar Registro </button>
-</form>
-
-{% endblock %}
+    <!-- Formulario de registro -->
+    <form method="POST">
+        <!-- Token CSRF para protección contra ataques -->
+        {{ regis.csrf_token }}
+        <!-- Campo de usuario -->
+        <div>
+            {{ regis.username.label }}
+            {{ regis.username }}
+        </div>
+        <!-- Campo de email -->
+        <div>
+            {{ regis.email.label }}
+            {{ regis.email }}
+        </div>
+        <!-- Campo de contraseña -->
+        <div>
+            {{ regis.password.label }}
+            {{ regis.password }}
+        </div>
+        <!-- Botón de envío -->
+        {{ regis.submit }}
+    </form>
+    <!-- Enlace para volver al login -->
+    <a href="{{ url_for('home') }}">Back to Login</a>
+</body>
+</html>
